@@ -4,9 +4,9 @@ A professional Flutter mobile application tailored for civil engineers, quantity
 
 ---
 
-## 🏗️ Features Overview
+##  Features Overview
 
-### 1. 🧮 Material & Quick Calculators
+### 1.  Material & Quick Calculators
 - **Wall Sandcrete Blocks**:
   - Calculates hollow sandcrete blocks (6" and 9").
   - Deducts door and window openings automatically.
@@ -36,25 +36,25 @@ A professional Flutter mobile application tailored for civil engineers, quantity
   - Calculates corrugated / longspan roofing sheets (lengths & count).
   - Estimates apex ridge caps, timber purlins / rafters (12ft planks), and self-drilling screw packs.
 
-### 2. 🏠 Whole Building & Multi-Room Project Estimation
+### 2.  Whole Building & Multi-Room Project Estimation
 - Create and organize multi-room construction projects with client details and site locations.
 - Configure room-by-room dimensions (length, width, height, door & window counts).
 - Toggle specific components per room (walls, slab, plastering, floor tiles, paint).
 - Aggregates room materials into a unified **Master Material Schedule & Bill of Quantities**.
 
-### 3. 📄 PDF Export & Printing
+### 3.  PDF Export & Printing
 - Generates clean, client-ready A4 PDF reports with a single tap.
 - Formats master material schedules, exact math vs. safety cushion, purchasing units, and room-by-room breakdowns.
 - Native sharing and direct printing support via `printing` and `pdf` packages.
 
-### 4. 📐 Visual Diagrams & "Show The Working"
+### 4. Visual Diagrams & "Show The Working"
 - **Interactive Diagrams**: Custom canvas painters showing walls with opening cutouts, rebar cross-sections, and mix ratios.
 - **Show The Working**: Transparent mathematical derivation steps for every calculation, helping laymen understand how figures are reached.
 - **Layman's Guide**: In-app glossary explaining key construction concepts (wastage, concrete ratios, rod diameters, shrinkage factors).
 
 ---
 
-## 🛠️ Tech Stack & Architecture
+##  Tech Stack & Architecture
 
 - **Framework**: [Flutter](https://flutter.dev) (Dart 3.x)
 - **State Management & Persistence**: Native Flutter State + `shared_preferences`
@@ -70,7 +70,7 @@ A professional Flutter mobile application tailored for civil engineers, quantity
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 - [Flutter SDK](https://docs.flutter.dev/get-started/install) (>= 3.11.4)
@@ -102,7 +102,7 @@ A professional Flutter mobile application tailored for civil engineers, quantity
 
 ---
 
-## 🧪 Testing
+## Testing
 
 The calculation engine is backed by thorough unit tests covering concrete batching, rebar formulas, tile pack rollups, and project aggregation:
 ```bash
@@ -111,6 +111,6 @@ flutter test test/calculator_engine_test.dart
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
