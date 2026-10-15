@@ -52,9 +52,11 @@ class _BlocksCalcScreenState extends State<BlocksCalcScreen> {
   Widget build(BuildContext context) {
     final len = double.tryParse(_lenCtrl.text) ?? 10.0;
     final hgt = double.tryParse(_hgtCtrl.text) ?? 3.0;
+    final isDark = AppTheme.isDark(context);
+    final textPri = AppTheme.textPrimary(context);
 
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBg,
+      backgroundColor: AppTheme.scaffoldColor(context),
       appBar: AppBar(title: const Text('Wall Blocks & Mortar')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(14),
@@ -65,7 +67,13 @@ class _BlocksCalcScreenState extends State<BlocksCalcScreen> {
               height: 160,
               width: double.infinity,
               child: CustomPaint(
-                painter: WallDiagramPainter(length: len, height: hgt, doors: _doors, windows: _windows),
+                painter: WallDiagramPainter(
+                  length: len,
+                  height: hgt,
+                  doors: _doors,
+                  windows: _windows,
+                  isDark: isDark,
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -91,25 +99,23 @@ class _BlocksCalcScreenState extends State<BlocksCalcScreen> {
               ],
             ),
             const SizedBox(height: 14),
-            const Text('Block Thickness / Type', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.textDark)),
+            Text('Block Thickness / Type', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: textPri)),
             const SizedBox(height: 6),
-            Row(
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
               children: ['9-inch (225mm)', '6-inch (150mm)'].map((t) {
                 final sel = _blockType == t;
-                return Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: ChoiceChip(
-                      label: Center(child: Text(t)),
-                      selected: sel,
-                      selectedColor: AppTheme.headerBlue,
-                      labelStyle: TextStyle(color: sel ? Colors.white : AppTheme.textDark, fontWeight: FontWeight.bold),
-                      onSelected: (_) {
-                        setState(() => _blockType = t);
-                        _recalc();
-                      },
-                    ),
-                  ),
+                return ChoiceChip(
+                  label: Text(t),
+                  selected: sel,
+                  backgroundColor: isDark ? const Color(0xFF1B2433) : Colors.white,
+                  selectedColor: AppTheme.headerBlue,
+                  labelStyle: TextStyle(color: sel ? Colors.white : textPri, fontWeight: FontWeight.bold),
+                  onSelected: (_) {
+                    setState(() => _blockType = t);
+                    _recalc();
+                  },
                 );
               }).toList(),
             ),
@@ -141,14 +147,14 @@ class _BlocksCalcScreenState extends State<BlocksCalcScreen> {
             ),
             const SizedBox(height: 14),
             CalcWasteSlider(
-              label: 'Wastage Allowance (Broken blocks & cuts)',
+              label: 'Broken Blocks & Mortar Spillage Buffer',
               value: _wastage,
               onChanged: (v) {
                 setState(() => _wastage = v);
                 _recalc();
               },
             ),
-            CalcResultView(title: 'Materials to Buy (Blockwork)', result: _result, wastagePercent: _wastage),
+            CalcResultView(title: 'Materials to Buy (Sandcrete Blocks & Mortar)', result: _result, wastagePercent: _wastage),
           ],
         ),
       ),

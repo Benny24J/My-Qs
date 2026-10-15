@@ -40,19 +40,31 @@ class _ProjectSummaryScreenState extends State<ProjectSummaryScreen> {
   @override
   Widget build(BuildContext context) {
     final dateFormatter = DateFormat('MMM dd, yyyy');
+    final isDark = AppTheme.isDark(context);
+    final cardBg = AppTheme.cardBg(context);
+    final borderSubtle = AppTheme.borderSubtleColor(context);
+    final textPri = AppTheme.textPrimary(context);
+    final textSec = AppTheme.textSecondary(context);
+    final accent = AppTheme.accentBlue(context);
+    final iceBg = AppTheme.iceCardBg(context);
+    final iceBorder = AppTheme.iceCardBorder(context);
 
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBg,
+      backgroundColor: AppTheme.scaffoldColor(context),
       appBar: AppBar(
         title: const Text('Combined Material Schedule'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit_outlined), tooltip: 'Edit',
+            icon: const Icon(Icons.edit_outlined),
+            tooltip: 'Edit',
             onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => CreateProjectScreen(initialProject: widget.project))),
           ),
           IconButton(
-            icon: _isGeneratingPdf ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Icon(Icons.share_outlined),
-            tooltip: 'Share PDF', onPressed: _isGeneratingPdf ? null : _exportPdf,
+            icon: _isGeneratingPdf
+                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                : const Icon(Icons.share_outlined),
+            tooltip: 'Share PDF',
+            onPressed: _isGeneratingPdf ? null : _exportPdf,
           ),
         ],
       ),
@@ -63,40 +75,59 @@ class _ProjectSummaryScreenState extends State<ProjectSummaryScreen> {
           children: [
             Container(
               padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10), border: Border.all(color: AppTheme.borderSubtle)),
+              decoration: BoxDecoration(
+                color: cardBg,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: borderSubtle),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(widget.project.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textDark)),
-                            if (widget.project.clientName.isNotEmpty) Text('Client: ${widget.project.clientName}', style: const TextStyle(fontSize: 12, color: AppTheme.textMuted)),
-                            if (widget.project.location.isNotEmpty) Text('Location: ${widget.project.location}', style: const TextStyle(fontSize: 12, color: AppTheme.titleBlue)),
-                            Text('Created: ${dateFormatter.format(widget.project.createdAt)}', style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+                            Text(widget.project.name, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textPri)),
+                            if (widget.project.clientName.isNotEmpty)
+                              Text('Client: ${widget.project.clientName}', style: TextStyle(fontSize: 12, color: textSec)),
+                            if (widget.project.location.isNotEmpty)
+                              Text('Location: ${widget.project.location}', style: TextStyle(fontSize: 12, color: accent)),
+                            Text('Created: ${dateFormatter.format(widget.project.createdAt)}', style: TextStyle(fontSize: 11, color: textSec)),
                           ],
                         ),
                       ),
+                      const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(color: const Color(0xFFDCFCE7), borderRadius: BorderRadius.circular(6), border: Border.all(color: const Color(0xFF86EFAC))),
-                        child: Text('+${widget.project.wastagePercent.toInt()}% Buffer', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF15803D))),
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF14532D) : const Color(0xFFDCFCE7),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: isDark ? const Color(0xFF166534) : const Color(0xFF86EFAC)),
+                        ),
+                        child: Text(
+                          '+${widget.project.wastagePercent.toInt()}% Buffer',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? const Color(0xFF86EFAC) : const Color(0xFF15803D),
+                          ),
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
-                  const Divider(color: AppTheme.borderSubtle, height: 1),
+                  Divider(color: borderSubtle, height: 1),
                   const SizedBox(height: 10),
                   Row(
                     children: [
-                      _metric('Total Floor', '${widget.project.totalFloorArea.toStringAsFixed(1)} m²', Icons.crop_square_outlined),
-                      const SizedBox(width: 8),
-                      _metric('Net Wall Area', '${widget.project.totalNetWallArea.toStringAsFixed(1)} m²', Icons.foundation_outlined),
-                      const SizedBox(width: 8),
-                      _metric('Rooms', '${widget.project.rooms.length} Areas', Icons.meeting_room_outlined),
+                      Expanded(child: _metric(context, 'Total Floor', '${widget.project.totalFloorArea.toStringAsFixed(1)} m²', Icons.crop_square_outlined)),
+                      const SizedBox(width: 6),
+                      Expanded(child: _metric(context, 'Net Wall', '${widget.project.totalNetWallArea.toStringAsFixed(1)} m²', Icons.foundation_outlined)),
+                      const SizedBox(width: 6),
+                      Expanded(child: _metric(context, 'Rooms', '${widget.project.rooms.length} Areas', Icons.meeting_room_outlined)),
                     ],
                   ),
                 ],
@@ -106,52 +137,68 @@ class _ProjectSummaryScreenState extends State<ProjectSummaryScreen> {
 
             Container(
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: AppTheme.cardIceBlue, borderRadius: BorderRadius.circular(10), border: Border.all(color: AppTheme.cardIceBlueBorder)),
+              decoration: BoxDecoration(
+                color: iceBg,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: iceBorder),
+              ),
               child: Row(
                 children: [
-                  Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AppTheme.headerBlue, borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.picture_as_pdf, color: Colors.white, size: 22)),
-                  const SizedBox(width: 12),
-                  const Expanded(
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(color: AppTheme.headerBlue, borderRadius: BorderRadius.circular(8)),
+                    child: const Icon(Icons.picture_as_pdf, color: Colors.white, size: 22),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Export Schedule Report', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.textDark)),
-                        Text('Share clean PDF with quantities and notes.', style: TextStyle(color: AppTheme.textMuted, fontSize: 11)),
+                        Text('Export Schedule Report', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: textPri)),
+                        Text('Share clean PDF with quantities and notes.', style: TextStyle(color: textSec, fontSize: 11), maxLines: 1, overflow: TextOverflow.ellipsis),
                       ],
                     ),
                   ),
-                  ElevatedButton(onPressed: _isGeneratingPdf ? null : _exportPdf, child: const Text('SHARE PDF', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold))),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                    onPressed: _isGeneratingPdf ? null : _exportPdf,
+                    child: const Text('SHARE PDF', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold)),
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 18),
 
-            Text('Master Material Purchasing List (${_summaryMaterials.length} Items)', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textDark)),
+            Text('Master Material Purchasing List (${_summaryMaterials.length} Items)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textPri)),
             const SizedBox(height: 10),
 
             if (_summaryMaterials.isEmpty)
-              const Center(child: Padding(padding: EdgeInsets.all(24), child: Text('No materials calculated.', style: TextStyle(color: AppTheme.textMuted))))
+              Center(child: Padding(padding: const EdgeInsets.all(24), child: Text('No materials calculated.', style: TextStyle(color: textSec))))
             else
               ..._summaryMaterials.map((m) => MaterialResultCard(item: m, wastagePercent: widget.project.wastagePercent)),
             const SizedBox(height: 14),
 
             ExpansionTile(
-              backgroundColor: Colors.white,
-              collapsedBackgroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: const BorderSide(color: AppTheme.borderSubtle)),
-              collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: const BorderSide(color: AppTheme.borderSubtle)),
-              title: Text('Room by Room Breakdown (${widget.project.rooms.length} Areas)', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.textDark)),
+              backgroundColor: cardBg,
+              collapsedBackgroundColor: cardBg,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: borderSubtle)),
+              collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: borderSubtle)),
+              title: Text('Room by Room Breakdown (${widget.project.rooms.length} Areas)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: textPri)),
               children: widget.project.rooms.map((room) {
                 return Container(
                   margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                   padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(color: AppTheme.cardIceBlue, borderRadius: BorderRadius.circular(8)),
+                  decoration: BoxDecoration(color: iceBg, borderRadius: BorderRadius.circular(8)),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(room.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.titleBlue)),
-                      Text('Size: ${room.length}m × ${room.width}m × ${room.height}m  •  Floor: ${room.floorArea.toStringAsFixed(1)} m²', style: const TextStyle(fontSize: 11, color: AppTheme.textDark)),
-                      Text('Openings: ${room.doorsCount}D / ${room.windowsCount}W  •  Net Wall: ${room.netWallArea.toStringAsFixed(1)} m²', style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+                      Text(room.name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: accent)),
+                      Text('Size: ${room.length}m × ${room.width}m × ${room.height}m  •  Floor: ${room.floorArea.toStringAsFixed(1)} m²', style: TextStyle(fontSize: 11, color: textPri)),
+                      Text('Openings: ${room.doorsCount}D / ${room.windowsCount}W  •  Net Wall: ${room.netWallArea.toStringAsFixed(1)} m²', style: TextStyle(fontSize: 11, color: textSec)),
                     ],
                   ),
                 );
@@ -164,19 +211,39 @@ class _ProjectSummaryScreenState extends State<ProjectSummaryScreen> {
     );
   }
 
-  Widget _metric(String label, String val, IconData icon) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(color: AppTheme.cardIceBlue, borderRadius: BorderRadius.circular(8)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(children: [Icon(icon, size: 14, color: AppTheme.titleBlue), const SizedBox(width: 4), Text(label, style: const TextStyle(fontSize: 10, color: AppTheme.textMuted))]),
-            const SizedBox(height: 2),
-            Text(val, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5, color: AppTheme.textDark)),
-          ],
-        ),
+  Widget _metric(BuildContext context, String label, String val, IconData icon) {
+    final iceBg = AppTheme.iceCardBg(context);
+    final accent = AppTheme.accentBlue(context);
+    final textSec = AppTheme.textSecondary(context);
+    final textPri = AppTheme.textPrimary(context);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+      decoration: BoxDecoration(color: iceBg, borderRadius: BorderRadius.circular(8)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 14, color: accent),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(fontSize: 10, color: textSec),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 3),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(val, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5, color: textPri)),
+          ),
+        ],
       ),
     );
   }

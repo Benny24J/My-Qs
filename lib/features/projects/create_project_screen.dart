@@ -80,9 +80,16 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
   @override
   Widget build(BuildContext context) {
     final totalFloor = _rooms.fold(0.0, (sum, r) => sum + r.floorArea);
+    final isDark = AppTheme.isDark(context);
+    final cardBg = AppTheme.cardBg(context);
+    final borderSubtle = AppTheme.borderSubtleColor(context);
+    final textPri = AppTheme.textPrimary(context);
+    final textSec = AppTheme.textSecondary(context);
+    final accent = AppTheme.accentBlue(context);
+    final iceBg = AppTheme.iceCardBg(context);
 
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBg,
+      backgroundColor: AppTheme.scaffoldColor(context),
       appBar: AppBar(
         title: Text(widget.initialProject == null ? 'Estimate Whole Building' : 'Edit Project'),
         actions: [
@@ -96,17 +103,30 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
           children: [
             Container(
               padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10), border: Border.all(color: AppTheme.borderSubtle)),
+              decoration: BoxDecoration(color: cardBg, borderRadius: BorderRadius.circular(10), border: Border.all(color: borderSubtle)),
               child: Column(
                 children: [
                   TextField(controller: _nameController, decoration: const InputDecoration(labelText: 'Project Name', hintText: 'e.g. 3-Bedroom Flat')),
                   const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(child: TextField(controller: _clientController, decoration: const InputDecoration(labelText: 'Client Name (Optional)'))),
-                      const SizedBox(width: 8),
-                      Expanded(child: TextField(controller: _locationController, decoration: const InputDecoration(labelText: 'Site Location (Optional)'))),
-                    ],
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      if (constraints.maxWidth < 340) {
+                        return Column(
+                          children: [
+                            TextField(controller: _clientController, decoration: const InputDecoration(labelText: 'Client Name (Optional)')),
+                            const SizedBox(height: 10),
+                            TextField(controller: _locationController, decoration: const InputDecoration(labelText: 'Site Location (Optional)')),
+                          ],
+                        );
+                      }
+                      return Row(
+                        children: [
+                          Expanded(child: TextField(controller: _clientController, decoration: const InputDecoration(labelText: 'Client Name (Optional)'))),
+                          const SizedBox(width: 8),
+                          Expanded(child: TextField(controller: _locationController, decoration: const InputDecoration(labelText: 'Site Location (Optional)'))),
+                        ],
+                      );
+                    },
                   ),
                 ],
               ),
@@ -115,17 +135,27 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
 
             Container(
               padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10), border: Border.all(color: AppTheme.borderSubtle)),
+              decoration: BoxDecoration(color: cardBg, borderRadius: BorderRadius.circular(10), border: Border.all(color: borderSubtle)),
               child: Column(
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Project Wastage Cushion', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.textDark)),
+                      Text('Project Wastage Cushion', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: textPri)),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(color: const Color(0xFFDCFCE7), borderRadius: BorderRadius.circular(6)),
-                        child: Text('+${_wastagePercent.toInt()}% Extra', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF15803D), fontSize: 12)),
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF14532D) : const Color(0xFFDCFCE7),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          '+${_wastagePercent.toInt()}% Extra',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? const Color(0xFF86EFAC) : const Color(0xFF15803D),
+                            fontSize: 12,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -138,13 +168,16 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Rooms & Areas (${_rooms.length})', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textDark)),
-                    Text('Combined Floor: ${totalFloor.toStringAsFixed(1)} m²', style: const TextStyle(fontSize: 11, color: AppTheme.titleBlue, fontWeight: FontWeight.bold)),
-                  ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Rooms & Areas (${_rooms.length})', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textPri)),
+                      Text('Combined Floor: ${totalFloor.toStringAsFixed(1)} m²', style: TextStyle(fontSize: 11, color: accent, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 8),
                 ElevatedButton.icon(
                   icon: const Icon(Icons.add, size: 16),
                   label: const Text('ADD ROOM'),
@@ -159,8 +192,8 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
               Container(
                 padding: const EdgeInsets.all(24),
                 alignment: Alignment.center,
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10), border: Border.all(color: AppTheme.borderSubtle)),
-                child: const Text('No rooms added yet. Tap "+ ADD ROOM" above.', style: TextStyle(color: AppTheme.textMuted)),
+                decoration: BoxDecoration(color: cardBg, borderRadius: BorderRadius.circular(10), border: Border.all(color: borderSubtle)),
+                child: Text('No rooms added yet. Tap "+ ADD ROOM" above.', style: TextStyle(color: textSec)),
               )
             else
               ListView.separated(
@@ -172,22 +205,38 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
                   final room = _rooms[index];
                   return Container(
                     padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10), border: Border.all(color: AppTheme.borderSubtle)),
+                    decoration: BoxDecoration(color: cardBg, borderRadius: BorderRadius.circular(10), border: Border.all(color: borderSubtle)),
                     child: Row(
                       children: [
-                        Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AppTheme.cardIceBlue, borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.meeting_room_outlined, color: AppTheme.titleBlue, size: 20)),
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(color: iceBg, borderRadius: BorderRadius.circular(8)),
+                          child: Icon(Icons.meeting_room_outlined, color: accent, size: 20),
+                        ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(room.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.textDark)),
-                              Text('${room.length}m × ${room.width}m × ${room.height}m  •  ${room.floorArea.toStringAsFixed(1)} m²', style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+                              Text(room.name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: textPri), maxLines: 1, overflow: TextOverflow.ellipsis),
+                              Text('${room.length}m × ${room.width}m × ${room.height}m  •  ${room.floorArea.toStringAsFixed(1)} m²', style: TextStyle(fontSize: 11, color: textSec), maxLines: 1, overflow: TextOverflow.ellipsis),
                             ],
                           ),
                         ),
-                        IconButton(icon: const Icon(Icons.edit_outlined, size: 18, color: AppTheme.headerBlue), onPressed: () => _addOrEditRoom(room, index)),
-                        IconButton(icon: const Icon(Icons.delete_outline, size: 18, color: AppTheme.dangerRed), onPressed: () => setState(() => _rooms.removeAt(index))),
+                        IconButton(
+                          visualDensity: VisualDensity.compact,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                          icon: const Icon(Icons.edit_outlined, size: 18, color: AppTheme.headerBlue),
+                          onPressed: () => _addOrEditRoom(room, index),
+                        ),
+                        IconButton(
+                          visualDensity: VisualDensity.compact,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                          icon: const Icon(Icons.delete_outline, size: 18, color: AppTheme.dangerRed),
+                          onPressed: () => setState(() => _rooms.removeAt(index)),
+                        ),
                       ],
                     ),
                   );

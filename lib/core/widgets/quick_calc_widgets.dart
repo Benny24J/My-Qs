@@ -13,24 +13,30 @@ class CalcHeaderBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final iceBg = AppTheme.iceCardBg(context);
+    final iceBorder = AppTheme.iceCardBorder(context);
+    final accent = AppTheme.accentBlue(context);
+    final textPri = AppTheme.textPrimary(context);
+    final textSec = AppTheme.textSecondary(context);
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.cardIceBlue,
+        color: iceBg,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppTheme.cardIceBlueBorder),
+        border: Border.all(color: iceBorder),
       ),
       child: Row(
         children: [
-          Icon(icon, color: AppTheme.titleBlue, size: 28),
+          Icon(icon, color: accent, size: 28),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.textDark)),
+                Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: textPri)),
                 const SizedBox(height: 1),
-                Text(subtitle, style: const TextStyle(color: AppTheme.textMuted, fontSize: 11)),
+                Text(subtitle, style: TextStyle(color: textSec, fontSize: 11)),
               ],
             ),
           ),
@@ -49,12 +55,17 @@ class CalcWasteSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cardBg = AppTheme.cardBg(context);
+    final border = AppTheme.borderStrongColor(context);
+    final textSec = AppTheme.textSecondary(context);
+    final accent = AppTheme.accentBlue(context);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBg,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppTheme.borderStrong),
+        border: Border.all(color: border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,8 +73,16 @@ class CalcWasteSlider extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(label, style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
-              Text('+${value.toInt()}%', style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.titleBlue)),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(fontSize: 11, color: textSec),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text('+${value.toInt()}%', style: TextStyle(fontWeight: FontWeight.bold, color: accent)),
             ],
           ),
           Slider(
@@ -89,29 +108,43 @@ class CalcCounterBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cardBg = AppTheme.cardBg(context);
+    final border = AppTheme.borderStrongColor(context);
+    final textPri = AppTheme.textPrimary(context);
+    final textSec = AppTheme.textSecondary(context);
+
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBg,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppTheme.borderStrong),
+        border: Border.all(color: border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontSize: 11, color: AppTheme.textMuted, fontWeight: FontWeight.w600)),
+          Text(
+            title,
+            style: TextStyle(fontSize: 11, color: textSec, fontWeight: FontWeight.w600),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
           const SizedBox(height: 4),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
                 visualDensity: VisualDensity.compact,
-                icon: const Icon(Icons.remove_circle_outline, size: 20, color: AppTheme.textMuted),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                icon: Icon(Icons.remove_circle_outline, size: 20, color: textSec),
                 onPressed: count > 0 ? () => onChanged(count - 1) : null,
               ),
-              Text('$count', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.textDark)),
+              Text('$count', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: textPri)),
               IconButton(
                 visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
                 icon: const Icon(Icons.add_circle_outline, size: 20, color: AppTheme.headerBlue),
                 onPressed: () => onChanged(count + 1),
               ),
@@ -133,11 +166,13 @@ class CalcResultView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (result == null) return const SizedBox.shrink();
+    final textPri = AppTheme.textPrimary(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 20),
-        Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textDark)),
+        Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textPri)),
         const SizedBox(height: 10),
         ...result!.materials.map((m) => MaterialResultCard(item: m, wastagePercent: wastagePercent)),
         const SizedBox(height: 14),

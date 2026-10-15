@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/project_model.dart';
 
@@ -6,6 +7,7 @@ class ProjectStorage {
   static const String _keyProjects = 'my_qs_saved_projects';
   static const String _keyWastageDefault = 'my_qs_default_wastage';
   static const String _keyUnitSystem = 'my_qs_unit_system';
+  static const String _keyThemeMode = 'my_qs_theme_mode';
 
   static Future<void> saveProject(ProjectModel project) async {
     final prefs = await SharedPreferences.getInstance();
@@ -66,6 +68,23 @@ class ProjectStorage {
   static Future<void> setUnitSystem(String unit) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_keyUnitSystem, unit);
+  }
+
+  static Future<ThemeMode> getThemeMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    final modeStr = prefs.getString(_keyThemeMode);
+    if (modeStr == 'light') return ThemeMode.light;
+    if (modeStr == 'system') return ThemeMode.system;
+    // Default is dark mode as requested by client
+    return ThemeMode.dark;
+  }
+
+  static Future<void> setThemeMode(ThemeMode mode) async {
+    final prefs = await SharedPreferences.getInstance();
+    String val = 'dark';
+    if (mode == ThemeMode.light) val = 'light';
+    if (mode == ThemeMode.system) val = 'system';
+    await prefs.setString(_keyThemeMode, val);
   }
 
   static List<ProjectModel> _getInitialSampleProjects() => [

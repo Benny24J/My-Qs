@@ -44,8 +44,11 @@ class _PaintCalcScreenState extends State<PaintCalcScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = AppTheme.isDark(context);
+    final textPri = AppTheme.textPrimary(context);
+
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBg,
+      backgroundColor: AppTheme.scaffoldColor(context),
       appBar: AppBar(title: const Text('Wall Paint & Primer')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(14),
@@ -65,25 +68,23 @@ class _PaintCalcScreenState extends State<PaintCalcScreen> {
               onChanged: (_) => _recalc(),
             ),
             const SizedBox(height: 14),
-            const Text('Number of Paint Coats', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.textDark)),
+            Text('Number of Paint Coats', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: textPri)),
             const SizedBox(height: 6),
-            Row(
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
               children: [1, 2, 3].map((c) {
                 final sel = _coats == c;
-                return Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: ChoiceChip(
-                      label: Center(child: Text('$c Coat${c > 1 ? "s" : ""}')),
-                      selected: sel,
-                      selectedColor: AppTheme.headerBlue,
-                      labelStyle: TextStyle(color: sel ? Colors.white : AppTheme.textDark, fontWeight: FontWeight.bold),
-                      onSelected: (_) {
-                        setState(() => _coats = c);
-                        _recalc();
-                      },
-                    ),
-                  ),
+                return ChoiceChip(
+                  label: Text('$c Coat${c > 1 ? "s" : ""}'),
+                  selected: sel,
+                  backgroundColor: isDark ? const Color(0xFF1B2433) : Colors.white,
+                  selectedColor: AppTheme.headerBlue,
+                  labelStyle: TextStyle(color: sel ? Colors.white : textPri, fontWeight: FontWeight.bold),
+                  onSelected: (_) {
+                    setState(() => _coats = c);
+                    _recalc();
+                  },
                 );
               }).toList(),
             ),

@@ -47,8 +47,13 @@ class _PlasterCalcScreenState extends State<PlasterCalcScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cardBg = AppTheme.cardBg(context);
+    final borderStrong = AppTheme.borderStrongColor(context);
+    final textPri = AppTheme.textPrimary(context);
+    final textSec = AppTheme.textSecondary(context);
+
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBg,
+      backgroundColor: AppTheme.scaffoldColor(context),
       appBar: AppBar(title: const Text('Plastering & Rendering')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(14),
@@ -68,38 +73,59 @@ class _PlasterCalcScreenState extends State<PlasterCalcScreen> {
               onChanged: (_) => _recalc(),
             ),
             const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _thickCtrl,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'Plaster Thickness', suffixText: 'mm'),
-                    onChanged: (_) => _recalc(),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final checkboxWidget = Container(
+                  decoration: BoxDecoration(
+                    color: cardBg,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: borderStrong),
                   ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppTheme.borderStrong),
-                    ),
-                    child: CheckboxListTile(
-                      value: _bothSides,
-                      title: const Text('Both Sides', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.textDark)),
-                      subtitle: const Text('In & Out', style: TextStyle(fontSize: 10, color: AppTheme.textMuted)),
-                      activeColor: AppTheme.headerBlue,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 6),
-                      onChanged: (val) {
-                        setState(() => _bothSides = val ?? false);
-                        _recalc();
-                      },
-                    ),
+                  child: CheckboxListTile(
+                    value: _bothSides,
+                    title: Text('Both Sides', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: textPri)),
+                    subtitle: Text('In & Out', style: TextStyle(fontSize: 10, color: textSec)),
+                    activeColor: AppTheme.headerBlue,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                    onChanged: (val) {
+                      setState(() => _bothSides = val ?? false);
+                      _recalc();
+                    },
                   ),
-                ),
-              ],
+                );
+
+                if (constraints.maxWidth < 340) {
+                  return Column(
+                    children: [
+                      TextField(
+                        controller: _thickCtrl,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(labelText: 'Plaster Thickness', suffixText: 'mm'),
+                        onChanged: (_) => _recalc(),
+                      ),
+                      const SizedBox(height: 8),
+                      checkboxWidget,
+                    ],
+                  );
+                }
+
+                return Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _thickCtrl,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(labelText: 'Plaster Thickness', suffixText: 'mm'),
+                        onChanged: (_) => _recalc(),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: checkboxWidget,
+                    ),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 12),
             CalcWasteSlider(

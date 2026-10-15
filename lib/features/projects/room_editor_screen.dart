@@ -93,8 +93,16 @@ class _RoomEditorScreenState extends State<RoomEditorScreen> {
     final wid = double.tryParse(_widthController.text) ?? 3.5;
     final floorArea = len * wid;
 
+    final isDark = AppTheme.isDark(context);
+    final cardBg = AppTheme.cardBg(context);
+    final borderSubtle = AppTheme.borderSubtleColor(context);
+    final textPri = AppTheme.textPrimary(context);
+    final accent = AppTheme.accentBlue(context);
+    final iceBg = AppTheme.iceCardBg(context);
+    final iceBorder = AppTheme.iceCardBorder(context);
+
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBg,
+      backgroundColor: AppTheme.scaffoldColor(context),
       appBar: AppBar(
         title: Text(widget.initialRoom == null ? 'Add Room / Area' : 'Edit Room'),
         actions: [
@@ -118,9 +126,9 @@ class _RoomEditorScreenState extends State<RoomEditorScreen> {
                   return Padding(
                     padding: const EdgeInsets.only(right: 6),
                     child: ActionChip(
-                      label: Text(preset, style: const TextStyle(fontSize: 11)),
-                      backgroundColor: Colors.white,
-                      side: const BorderSide(color: AppTheme.borderSubtle),
+                      label: Text(preset, style: TextStyle(fontSize: 11, color: textPri)),
+                      backgroundColor: isDark ? const Color(0xFF1B2433) : Colors.white,
+                      side: BorderSide(color: borderSubtle),
                       onPressed: () => setState(() => _nameController.text = preset),
                     ),
                   );
@@ -131,30 +139,49 @@ class _RoomEditorScreenState extends State<RoomEditorScreen> {
 
             Container(
               padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10), border: Border.all(color: AppTheme.borderSubtle)),
+              decoration: BoxDecoration(color: cardBg, borderRadius: BorderRadius.circular(10), border: Border.all(color: borderSubtle)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Room Dimensions', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.textDark)),
+                      Text('Room Dimensions', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: textPri)),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(color: AppTheme.cardIceBlue, borderRadius: BorderRadius.circular(6), border: Border.all(color: AppTheme.cardIceBlueBorder)),
-                        child: Text('Floor Area: ${floorArea.toStringAsFixed(1)} m²', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.titleBlue)),
+                        decoration: BoxDecoration(color: iceBg, borderRadius: BorderRadius.circular(6), border: Border.all(color: iceBorder)),
+                        child: Text('Floor Area: ${floorArea.toStringAsFixed(1)} m²', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: accent)),
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(child: TextField(controller: _lengthController, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: const InputDecoration(labelText: 'Length', suffixText: 'm'), onChanged: (_) => setState(() {}))),
-                      const SizedBox(width: 8),
-                      Expanded(child: TextField(controller: _widthController, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: const InputDecoration(labelText: 'Width', suffixText: 'm'), onChanged: (_) => setState(() {}))),
-                      const SizedBox(width: 8),
-                      Expanded(child: TextField(controller: _heightController, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: const InputDecoration(labelText: 'Height', suffixText: 'm'), onChanged: (_) => setState(() {}))),
-                    ],
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      if (constraints.maxWidth < 340) {
+                        return Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(child: TextField(controller: _lengthController, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: const InputDecoration(labelText: 'Length', suffixText: 'm'), onChanged: (_) => setState(() {}))),
+                                const SizedBox(width: 8),
+                                Expanded(child: TextField(controller: _widthController, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: const InputDecoration(labelText: 'Width', suffixText: 'm'), onChanged: (_) => setState(() {}))),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            TextField(controller: _heightController, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: const InputDecoration(labelText: 'Height', suffixText: 'm'), onChanged: (_) => setState(() {})),
+                          ],
+                        );
+                      }
+                      return Row(
+                        children: [
+                          Expanded(child: TextField(controller: _lengthController, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: const InputDecoration(labelText: 'Length', suffixText: 'm'), onChanged: (_) => setState(() {}))),
+                          const SizedBox(width: 8),
+                          Expanded(child: TextField(controller: _widthController, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: const InputDecoration(labelText: 'Width', suffixText: 'm'), onChanged: (_) => setState(() {}))),
+                          const SizedBox(width: 8),
+                          Expanded(child: TextField(controller: _heightController, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: const InputDecoration(labelText: 'Height', suffixText: 'm'), onChanged: (_) => setState(() {}))),
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: 10),
                   Row(
@@ -168,14 +195,17 @@ class _RoomEditorScreenState extends State<RoomEditorScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            const Text('Works Included for this Room', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppTheme.textDark)),
+            Text('Works Included for this Room', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: textPri)),
             const SizedBox(height: 8),
 
             _buildScopeTile(
               title: 'Wall Blocks & Mortar', subtitle: 'Sandcrete blocks and joint mortar',
               icon: Icons.foundation_outlined, value: _includeWalls, onChanged: (v) => setState(() => _includeWalls = v),
               extra: _includeWalls ? DropdownButtonFormField<String>(
-                initialValue: _blockType, decoration: const InputDecoration(labelText: 'Block Thickness'),
+                initialValue: _blockType,
+                dropdownColor: cardBg,
+                style: TextStyle(color: textPri, fontSize: 13),
+                decoration: const InputDecoration(labelText: 'Block Thickness'),
                 items: const [DropdownMenuItem(value: '9-inch (225mm)', child: Text('9-inch (225mm)')), DropdownMenuItem(value: '6-inch (150mm)', child: Text('6-inch (150mm)'))],
                 onChanged: (v) => v != null ? setState(() => _blockType = v) : null,
               ) : null,
@@ -188,13 +218,18 @@ class _RoomEditorScreenState extends State<RoomEditorScreen> {
               extra: _includeFloorTiles ? Row(
                 children: [
                   Expanded(child: DropdownButtonFormField<String>(
-                    initialValue: _tilePreset, decoration: const InputDecoration(labelText: 'Tile Size'),
+                    initialValue: _tilePreset,
+                    dropdownColor: cardBg,
+                    style: TextStyle(color: textPri, fontSize: 13),
+                    decoration: const InputDecoration(labelText: 'Tile Size'),
                     items: const [DropdownMenuItem(value: '30x30 cm', child: Text('30x30 cm')), DropdownMenuItem(value: '40x40 cm', child: Text('40x40 cm')), DropdownMenuItem(value: '60x60 cm', child: Text('60x60 cm')), DropdownMenuItem(value: '60x120 cm', child: Text('60x120 cm'))],
                     onChanged: (v) => v != null ? setState(() => _tilePreset = v) : null,
                   )),
                   const SizedBox(width: 8),
                   Expanded(child: TextFormField(
-                    initialValue: _tilesPerPack.toString(), keyboardType: TextInputType.number,
+                    initialValue: _tilesPerPack.toString(),
+                    keyboardType: TextInputType.number,
+                    style: TextStyle(color: textPri),
                     decoration: const InputDecoration(labelText: 'Tiles/Pack', suffixText: 'pcs'),
                     onChanged: (v) => _tilesPerPack = int.tryParse(v) ?? 10,
                   )),
@@ -210,7 +245,10 @@ class _RoomEditorScreenState extends State<RoomEditorScreen> {
               title: 'Wall Painting', subtitle: 'Emulsion & primer coats',
               icon: Icons.brush_outlined, value: _includePainting, onChanged: (v) => setState(() => _includePainting = v),
               extra: _includePainting ? DropdownButtonFormField<int>(
-                initialValue: _paintCoats, decoration: const InputDecoration(labelText: 'Number of Coats'),
+                initialValue: _paintCoats,
+                dropdownColor: cardBg,
+                style: TextStyle(color: textPri, fontSize: 13),
+                decoration: const InputDecoration(labelText: 'Number of Coats'),
                 items: const [DropdownMenuItem(value: 1, child: Text('1 Coat')), DropdownMenuItem(value: 2, child: Text('2 Coats (Standard)')), DropdownMenuItem(value: 3, child: Text('3 Coats (Premium)'))],
                 onChanged: (v) => v != null ? setState(() => _paintCoats = v) : null,
               ) : null,
@@ -236,16 +274,23 @@ class _RoomEditorScreenState extends State<RoomEditorScreen> {
   }
 
   Widget _buildScopeTile({required String title, required String subtitle, required IconData icon, required bool value, required ValueChanged<bool> onChanged, Widget? extra}) {
+    final cardBg = AppTheme.cardBg(context);
+    final borderSubtle = AppTheme.borderSubtleColor(context);
+    final textPri = AppTheme.textPrimary(context);
+    final textSec = AppTheme.textSecondary(context);
+    final accent = AppTheme.accentBlue(context);
+    final iceBg = AppTheme.iceCardBg(context);
+
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10), border: Border.all(color: value ? AppTheme.headerBlue : AppTheme.borderSubtle)),
+      decoration: BoxDecoration(color: cardBg, borderRadius: BorderRadius.circular(10), border: Border.all(color: value ? AppTheme.headerBlue : borderSubtle)),
       child: Column(
         children: [
           Row(
             children: [
-              Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AppTheme.cardIceBlue, borderRadius: BorderRadius.circular(8)), child: Icon(icon, color: AppTheme.titleBlue, size: 20)),
+              Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: iceBg, borderRadius: BorderRadius.circular(8)), child: Icon(icon, color: accent, size: 20)),
               const SizedBox(width: 10),
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.textDark)), const SizedBox(height: 1), Text(subtitle, style: const TextStyle(fontSize: 11, color: AppTheme.textMuted))])),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: textPri)), const SizedBox(height: 1), Text(subtitle, style: TextStyle(fontSize: 11, color: textSec))])),
               Switch(value: value, activeThumbColor: AppTheme.headerBlue, onChanged: onChanged),
             ],
           ),
@@ -256,19 +301,24 @@ class _RoomEditorScreenState extends State<RoomEditorScreen> {
   }
 
   Widget _buildCounter(String title, int count, ValueChanged<int> onChanged) {
+    final boxBg = AppTheme.subtleBoxBg(context);
+    final borderStrong = AppTheme.borderStrongColor(context);
+    final textPri = AppTheme.textPrimary(context);
+    final textSec = AppTheme.textSecondary(context);
+
     return Container(
       padding: const EdgeInsets.all(6),
-      decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(8), border: Border.all(color: AppTheme.borderStrong)),
+      decoration: BoxDecoration(color: boxBg, borderRadius: BorderRadius.circular(8), border: Border.all(color: borderStrong)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontSize: 10, color: AppTheme.textMuted, fontWeight: FontWeight.bold)),
+          Text(title, style: TextStyle(fontSize: 10, color: textSec, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 2),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              InkWell(onTap: count > 0 ? () => onChanged(count - 1) : null, child: const Icon(Icons.remove, size: 18, color: AppTheme.textMuted)),
-              Text('$count', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.textDark)),
+              InkWell(onTap: count > 0 ? () => onChanged(count - 1) : null, child: Icon(Icons.remove, size: 18, color: textSec)),
+              Text('$count', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: textPri)),
               InkWell(onTap: () => onChanged(count + 1), child: const Icon(Icons.add, size: 18, color: AppTheme.headerBlue)),
             ],
           ),

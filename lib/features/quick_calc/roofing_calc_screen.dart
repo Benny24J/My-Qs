@@ -54,8 +54,11 @@ class _RoofingCalcScreenState extends State<RoofingCalcScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cardBg = AppTheme.cardBg(context);
+    final textPri = AppTheme.textPrimary(context);
+
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBg,
+      backgroundColor: AppTheme.scaffoldColor(context),
       appBar: AppBar(title: const Text('Roofing & Timber Calculator')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(14),
@@ -68,57 +71,116 @@ class _RoofingCalcScreenState extends State<RoofingCalcScreen> {
               subtitle: 'Calculates longspan sheets, ridge caps & timber purlins.',
             ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _lenCtrl,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(labelText: 'Building Length', suffixText: 'm'),
-                    onChanged: (_) => _recalc(),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: TextField(
-                    controller: _widCtrl,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(labelText: 'Building Width', suffixText: 'm'),
-                    onChanged: (_) => _recalc(),
-                  ),
-                ),
-              ],
+            LayoutBuilder(
+              builder: (context, constraints) {
+                if (constraints.maxWidth < 330) {
+                  return Column(
+                    children: [
+                      TextField(
+                        controller: _lenCtrl,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration: const InputDecoration(labelText: 'Building Length', suffixText: 'm'),
+                        onChanged: (_) => _recalc(),
+                      ),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: _widCtrl,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration: const InputDecoration(labelText: 'Building Width', suffixText: 'm'),
+                        onChanged: (_) => _recalc(),
+                      ),
+                    ],
+                  );
+                }
+                return Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _lenCtrl,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration: const InputDecoration(labelText: 'Building Length', suffixText: 'm'),
+                        onChanged: (_) => _recalc(),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: TextField(
+                        controller: _widCtrl,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration: const InputDecoration(labelText: 'Building Width', suffixText: 'm'),
+                        onChanged: (_) => _recalc(),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 14),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _overhangCtrl,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(labelText: 'Eaves Overhang', suffixText: 'm'),
-                    onChanged: (_) => _recalc(),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: DropdownButtonFormField<double>(
-                    initialValue: _sheetLength,
-                    decoration: const InputDecoration(labelText: 'Sheet Length'),
-                    items: const [
-                      DropdownMenuItem(value: 2.4, child: Text('2.4m (8 ft)')),
-                      DropdownMenuItem(value: 3.0, child: Text('3.0m (10 ft)')),
-                      DropdownMenuItem(value: 3.6, child: Text('3.6m (12 ft)')),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                if (constraints.maxWidth < 340) {
+                  return Column(
+                    children: [
+                      TextField(
+                        controller: _overhangCtrl,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration: const InputDecoration(labelText: 'Eaves Overhang', suffixText: 'm'),
+                        onChanged: (_) => _recalc(),
+                      ),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<double>(
+                        initialValue: _sheetLength,
+                        dropdownColor: cardBg,
+                        style: TextStyle(color: textPri, fontSize: 13),
+                        decoration: const InputDecoration(labelText: 'Sheet Length'),
+                        items: const [
+                          DropdownMenuItem(value: 2.4, child: Text('2.4m (8 ft)')),
+                          DropdownMenuItem(value: 3.0, child: Text('3.0m (10 ft)')),
+                          DropdownMenuItem(value: 3.6, child: Text('3.6m (12 ft)')),
+                        ],
+                        onChanged: (val) {
+                          if (val != null) {
+                            setState(() => _sheetLength = val);
+                            _recalc();
+                          }
+                        },
+                      ),
                     ],
-                    onChanged: (val) {
-                      if (val != null) {
-                        setState(() => _sheetLength = val);
-                        _recalc();
-                      }
-                    },
-                  ),
-                ),
-              ],
+                  );
+                }
+                return Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _overhangCtrl,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration: const InputDecoration(labelText: 'Eaves Overhang', suffixText: 'm'),
+                        onChanged: (_) => _recalc(),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: DropdownButtonFormField<double>(
+                        initialValue: _sheetLength,
+                        dropdownColor: cardBg,
+                        style: TextStyle(color: textPri, fontSize: 13),
+                        decoration: const InputDecoration(labelText: 'Sheet Length'),
+                        items: const [
+                          DropdownMenuItem(value: 2.4, child: Text('2.4m (8 ft)')),
+                          DropdownMenuItem(value: 3.0, child: Text('3.0m (10 ft)')),
+                          DropdownMenuItem(value: 3.6, child: Text('3.6m (12 ft)')),
+                        ],
+                        onChanged: (val) {
+                          if (val != null) {
+                            setState(() => _sheetLength = val);
+                            _recalc();
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 14),
             CalcWasteSlider(

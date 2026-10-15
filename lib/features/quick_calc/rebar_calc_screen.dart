@@ -66,8 +66,13 @@ class _RebarCalcScreenState extends State<RebarCalcScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = AppTheme.isDark(context);
+    final cardBg = AppTheme.cardBg(context);
+    final textPri = AppTheme.textPrimary(context);
+    final textSec = AppTheme.textSecondary(context);
+
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBg,
+      backgroundColor: AppTheme.scaffoldColor(context),
       appBar: AppBar(title: Text(_isBeam ? 'RCC Beam Steel Calculator' : 'RCC Steel Rebar Calculator')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(14),
@@ -83,6 +88,7 @@ class _RebarCalcScreenState extends State<RebarCalcScreen> {
                   barDiameter: _mainDiameter,
                   linkDiameter: _linkDiameter,
                   isRound: _isRound,
+                  isDark: isDark,
                 ),
               ),
             ),
@@ -90,14 +96,19 @@ class _RebarCalcScreenState extends State<RebarCalcScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  _isBeam ? 'Beam Rebar Configuration' : 'Column Configuration',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.textDark),
+                Expanded(
+                  child: Text(
+                    _isBeam ? 'Beam Rebar Configuration' : 'Column Configuration',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: textPri),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 if (!_isBeam)
                   Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text('Round', style: TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+                      Text('Round', style: TextStyle(fontSize: 11, color: textSec)),
                       Switch(
                         value: _isRound,
                         activeThumbColor: AppTheme.headerBlue,
@@ -121,8 +132,9 @@ class _RebarCalcScreenState extends State<RebarCalcScreen> {
                     child: ChoiceChip(
                       label: Text('$b-Bar ${_isBeam ? "Beam" : "Column"}'),
                       selected: sel,
+                      backgroundColor: isDark ? const Color(0xFF1B2433) : Colors.white,
                       selectedColor: AppTheme.headerBlue,
-                      labelStyle: TextStyle(color: sel ? Colors.white : AppTheme.textDark, fontWeight: FontWeight.bold),
+                      labelStyle: TextStyle(color: sel ? Colors.white : textPri, fontWeight: FontWeight.bold),
                       onSelected: (_) {
                         setState(() => _barsCount = b);
                         _recalc();
@@ -133,29 +145,61 @@ class _RebarCalcScreenState extends State<RebarCalcScreen> {
               ),
             ),
             const SizedBox(height: 14),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _hgtCtrl,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: InputDecoration(
-                      labelText: _isBeam ? 'Beam Span / Length' : 'Column Height',
-                      suffixText: 'm',
+            LayoutBuilder(
+              builder: (context, constraints) {
+                if (constraints.maxWidth < 330) {
+                  return Column(
+                    children: [
+                      TextField(
+                        controller: _hgtCtrl,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration: InputDecoration(
+                          labelText: _isBeam ? 'Beam Span / Length' : 'Column Height',
+                          suffixText: 'm',
+                        ),
+                        onChanged: (_) => _recalc(),
+                      ),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: _countCtrl,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: _isBeam ? 'Number of Beams' : 'Number of Columns',
+                          suffixText: 'units',
+                        ),
+                        onChanged: (_) => _recalc(),
+                      ),
+                    ],
+                  );
+                }
+                return Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _hgtCtrl,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration: InputDecoration(
+                          labelText: _isBeam ? 'Beam Span / Length' : 'Column Height',
+                          suffixText: 'm',
+                        ),
+                        onChanged: (_) => _recalc(),
+                      ),
                     ),
-                    onChanged: (_) => _recalc(),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: TextField(
-                    controller: _countCtrl,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'Number of Columns', suffixText: 'units'),
-                    onChanged: (_) => _recalc(),
-                  ),
-                ),
-              ],
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: TextField(
+                        controller: _countCtrl,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: _isBeam ? 'Number of Beams' : 'Number of Columns',
+                          suffixText: 'units',
+                        ),
+                        onChanged: (_) => _recalc(),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 14),
             Row(
@@ -163,6 +207,8 @@ class _RebarCalcScreenState extends State<RebarCalcScreen> {
                 Expanded(
                   child: DropdownButtonFormField<int>(
                     initialValue: _mainDiameter,
+                    dropdownColor: cardBg,
+                    style: TextStyle(color: textPri, fontSize: 13),
                     decoration: const InputDecoration(labelText: 'Main Bar (Y)'),
                     items: const [
                       DropdownMenuItem(value: 12, child: Text('Y12 (12mm)')),
@@ -182,6 +228,8 @@ class _RebarCalcScreenState extends State<RebarCalcScreen> {
                 Expanded(
                   child: DropdownButtonFormField<int>(
                     initialValue: _linkDiameter,
+                    dropdownColor: cardBg,
+                    style: TextStyle(color: textPri, fontSize: 13),
                     decoration: const InputDecoration(labelText: 'Stirrup Ring (Y)'),
                     items: const [
                       DropdownMenuItem(value: 8, child: Text('Y8 (8mm)')),

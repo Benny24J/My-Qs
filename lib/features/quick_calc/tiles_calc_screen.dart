@@ -67,9 +67,11 @@ class _TilesCalcScreenState extends State<TilesCalcScreen> {
   Widget build(BuildContext context) {
     final len = double.tryParse(_lenCtrl.text) ?? 4.0;
     final wid = double.tryParse(_widCtrl.text) ?? 3.0;
+    final isDark = AppTheme.isDark(context);
+    final textPri = AppTheme.textPrimary(context);
 
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBg,
+      backgroundColor: AppTheme.scaffoldColor(context),
       appBar: AppBar(title: const Text('Floor & Wall Tiles')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(14),
@@ -80,7 +82,13 @@ class _TilesCalcScreenState extends State<TilesCalcScreen> {
               height: 160,
               width: double.infinity,
               child: CustomPaint(
-                painter: TileGridDiagramPainter(floorLength: len, floorWidth: wid, tileW: _tileW, tileL: _tileL),
+                painter: TileGridDiagramPainter(
+                  floorLength: len,
+                  floorWidth: wid,
+                  tileW: _tileW,
+                  tileL: _tileL,
+                  isDark: isDark,
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -106,44 +114,71 @@ class _TilesCalcScreenState extends State<TilesCalcScreen> {
               ],
             ),
             const SizedBox(height: 14),
-            const Text('Select Tile Size', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.textDark)),
+            Text('Select Tile Size', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: textPri)),
             const SizedBox(height: 6),
             Wrap(
               spacing: 8,
+              runSpacing: 8,
               children: ['30x30 cm', '40x40 cm', '60x60 cm', '60x120 cm'].map((p) {
                 final sel = _preset == p;
                 return ChoiceChip(
                   label: Text(p),
                   selected: sel,
+                  backgroundColor: isDark ? const Color(0xFF1B2433) : Colors.white,
                   selectedColor: AppTheme.headerBlue,
-                  labelStyle: TextStyle(color: sel ? Colors.white : AppTheme.textDark, fontWeight: FontWeight.bold),
+                  labelStyle: TextStyle(color: sel ? Colors.white : textPri, fontWeight: FontWeight.bold),
                   onSelected: (_) => _onPresetChanged(p),
                 );
               }).toList(),
             ),
             const SizedBox(height: 14),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _packSizeCtrl,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'Tiles Per Pack', suffixText: 'pcs'),
-                    onChanged: (_) => _recalc(),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: CalcWasteSlider(
-                    label: 'Tile Offcut Wastage',
-                    value: _wastage,
-                    onChanged: (v) {
-                      setState(() => _wastage = v);
-                      _recalc();
-                    },
-                  ),
-                ),
-              ],
+            LayoutBuilder(
+              builder: (context, constraints) {
+                if (constraints.maxWidth < 340) {
+                  return Column(
+                    children: [
+                      TextField(
+                        controller: _packSizeCtrl,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(labelText: 'Tiles Per Pack', suffixText: 'pcs'),
+                        onChanged: (_) => _recalc(),
+                      ),
+                      const SizedBox(height: 10),
+                      CalcWasteSlider(
+                        label: 'Tile Offcut Wastage',
+                        value: _wastage,
+                        onChanged: (v) {
+                          setState(() => _wastage = v);
+                          _recalc();
+                        },
+                      ),
+                    ],
+                  );
+                }
+                return Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _packSizeCtrl,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(labelText: 'Tiles Per Pack', suffixText: 'pcs'),
+                        onChanged: (_) => _recalc(),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: CalcWasteSlider(
+                        label: 'Tile Offcut Wastage',
+                        value: _wastage,
+                        onChanged: (v) {
+                          setState(() => _wastage = v);
+                          _recalc();
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
             CalcResultView(title: 'Materials to Buy (With Wastage)', result: _result, wastagePercent: _wastage),
           ],

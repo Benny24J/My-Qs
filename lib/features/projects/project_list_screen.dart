@@ -35,9 +35,9 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
-        title: const Text('Delete Project?'),
-        content: const Text('This will remove this project estimate from your device.'),
+        backgroundColor: AppTheme.cardBg(ctx),
+        title: Text('Delete Project?', style: TextStyle(color: AppTheme.textPrimary(ctx), fontWeight: FontWeight.bold)),
+        content: Text('This will remove this project estimate from your device.', style: TextStyle(color: AppTheme.textSecondary(ctx))),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('CANCEL')),
           ElevatedButton(
@@ -63,8 +63,11 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
       p.location.toLowerCase().contains(q)
     ).toList();
 
+    final textPri = AppTheme.textPrimary(context);
+    final textSec = AppTheme.textSecondary(context);
+
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBg,
+      backgroundColor: AppTheme.scaffoldColor(context),
       appBar: widget.isEmbeddedTab ? null : AppBar(
         title: const Text('Saved Projects & Estimates'),
         actions: [IconButton(icon: const Icon(Icons.refresh), onPressed: _loadProjects)],
@@ -88,7 +91,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                   child: TextField(
                     decoration: InputDecoration(
                       hintText: 'Search projects by name, client, or site...',
-                      prefixIcon: const Icon(Icons.search, color: AppTheme.textMuted),
+                      prefixIcon: Icon(Icons.search, color: textSec),
                       suffixIcon: _searchQuery.isNotEmpty
                           ? IconButton(icon: const Icon(Icons.clear), onPressed: () => setState(() => _searchQuery = ''))
                           : null,
@@ -102,14 +105,14 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.folder_open_outlined, size: 52, color: AppTheme.textMuted),
+                              Icon(Icons.folder_open_outlined, size: 52, color: textSec),
                               const SizedBox(height: 10),
                               Text(
                                 _searchQuery.isEmpty ? 'No saved projects yet' : 'No projects found',
-                                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+                                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: textPri),
                               ),
                               const SizedBox(height: 4),
-                              const Text('Create a new project to start estimating.', style: TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+                              Text('Create a new project to start estimating.', style: TextStyle(fontSize: 12, color: textSec)),
                             ],
                           ),
                         )
@@ -126,12 +129,20 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
   }
 
   Widget _buildProjectCard(ProjectModel project) {
+    final cardBg = AppTheme.cardBg(context);
+    final borderSubtle = AppTheme.borderSubtleColor(context);
+    final textPri = AppTheme.textPrimary(context);
+    final textSec = AppTheme.textSecondary(context);
+    final accent = AppTheme.accentBlue(context);
+    final iceBg = AppTheme.iceCardBg(context);
+    final iceBorder = AppTheme.iceCardBorder(context);
+
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBg,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppTheme.borderSubtle),
+        border: Border.all(color: borderSubtle),
         boxShadow: const [BoxShadow(color: Color(0x06000000), blurRadius: 4, offset: Offset(0, 2))],
       ),
       child: Column(
@@ -143,29 +154,29 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppTheme.cardIceBlue,
+                  color: iceBg,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppTheme.cardIceBlueBorder),
+                  border: Border.all(color: iceBorder),
                 ),
-                child: const Icon(Icons.apartment_outlined, color: AppTheme.titleBlue, size: 22),
+                child: Icon(Icons.apartment_outlined, color: accent, size: 22),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(project.name, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.textDark)),
+                    Text(project.name, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: textPri), maxLines: 2, overflow: TextOverflow.ellipsis),
                     const SizedBox(height: 2),
                     if (project.clientName.isNotEmpty)
-                      Text('Client: ${project.clientName}', style: const TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+                      Text('Client: ${project.clientName}', style: TextStyle(fontSize: 12, color: textSec), maxLines: 1, overflow: TextOverflow.ellipsis),
                     if (project.location.isNotEmpty)
-                      Text('📍 ${project.location}', style: const TextStyle(fontSize: 11, color: AppTheme.titleBlue)),
+                      Text('📍 ${project.location}', style: TextStyle(fontSize: 11, color: accent), maxLines: 1, overflow: TextOverflow.ellipsis),
                   ],
                 ),
               ),
               PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert, color: AppTheme.textMuted),
-                color: Colors.white,
+                icon: Icon(Icons.more_vert, color: textSec),
+                color: cardBg,
                 onSelected: (val) async {
                   if (val == 'edit') {
                     await Navigator.push(context, MaterialPageRoute(builder: (_) => CreateProjectScreen(initialProject: project)));
@@ -174,29 +185,46 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                     _deleteProject(project.id);
                   }
                 },
-                itemBuilder: (_) => const [
-                  PopupMenuItem(value: 'edit', child: Row(children: [Icon(Icons.edit_outlined, size: 18, color: AppTheme.headerBlue), SizedBox(width: 8), Text('Edit Project')])),
-                  PopupMenuItem(value: 'delete', child: Row(children: [Icon(Icons.delete_outline, size: 18, color: AppTheme.dangerRed), SizedBox(width: 8), Text('Delete', style: TextStyle(color: AppTheme.dangerRed))])),
+                itemBuilder: (_) => [
+                  PopupMenuItem(
+                    value: 'edit',
+                    child: Row(children: [const Icon(Icons.edit_outlined, size: 18, color: AppTheme.headerBlue), const SizedBox(width: 8), Text('Edit Project', style: TextStyle(color: textPri))]),
+                  ),
+                  const PopupMenuItem(
+                    value: 'delete',
+                    child: Row(children: [Icon(Icons.delete_outline, size: 18, color: AppTheme.dangerRed), SizedBox(width: 8), Text('Delete', style: TextStyle(color: AppTheme.dangerRed))]),
+                  ),
                 ],
               ),
             ],
           ),
           const SizedBox(height: 10),
-          const Divider(color: AppTheme.borderSubtle, height: 1),
+          Divider(color: borderSubtle, height: 1),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('${project.rooms.length} Areas  •  ${project.totalFloorArea.toStringAsFixed(1)} m² floor', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textDark)),
-              Text(DateFormat('MMM dd, yyyy').format(project.createdAt), style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+              Expanded(
+                child: Text(
+                  '${project.rooms.length} Areas  •  ${project.totalFloorArea.toStringAsFixed(1)} m² floor',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: textPri),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(DateFormat('MMM dd, yyyy').format(project.createdAt), style: TextStyle(fontSize: 11, color: textSec)),
             ],
           ),
           const SizedBox(height: 10),
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
-              icon: const Icon(Icons.visibility_outlined, size: 16, color: AppTheme.titleBlue),
-              label: const Text('VIEW MATERIAL SCHEDULE & PDF', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.titleBlue)),
+              icon: Icon(Icons.visibility_outlined, size: 16, color: accent),
+              label: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text('VIEW MATERIAL SCHEDULE & PDF', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: accent)),
+              ),
               onPressed: () async {
                 await Navigator.push(context, MaterialPageRoute(builder: (_) => ProjectSummaryScreen(project: project)));
                 _loadProjects();

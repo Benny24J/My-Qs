@@ -55,9 +55,11 @@ class _ConcreteCalcScreenState extends State<ConcreteCalcScreen> {
     final len = double.tryParse(_lenCtrl.text) ?? 6.0;
     final wid = double.tryParse(_widCtrl.text) ?? 4.0;
     final thickMm = double.tryParse(_thickCtrl.text) ?? 150.0;
+    final isDark = AppTheme.isDark(context);
+    final textPri = AppTheme.textPrimary(context);
 
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBg,
+      backgroundColor: AppTheme.scaffoldColor(context),
       appBar: AppBar(title: const Text('Concrete Batching Calculator')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(14),
@@ -68,42 +70,85 @@ class _ConcreteCalcScreenState extends State<ConcreteCalcScreen> {
               height: 160,
               width: double.infinity,
               child: CustomPaint(
-                painter: ConcreteSlabDiagramPainter(length: len, width: wid, depth: thickMm / 1000.0),
+                painter: ConcreteSlabDiagramPainter(
+                  length: len,
+                  width: wid,
+                  depth: thickMm / 1000.0,
+                  isDark: isDark,
+                ),
               ),
             ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _lenCtrl,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(labelText: 'Length', suffixText: 'm'),
-                    onChanged: (_) => _recalc(),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _widCtrl,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(labelText: 'Width', suffixText: 'm'),
-                    onChanged: (_) => _recalc(),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _thickCtrl,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(labelText: 'Thickness', suffixText: 'mm'),
-                    onChanged: (_) => _recalc(),
-                  ),
-                ),
-              ],
+            LayoutBuilder(
+              builder: (context, constraints) {
+                if (constraints.maxWidth < 350) {
+                  return Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _lenCtrl,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              decoration: const InputDecoration(labelText: 'Length', suffixText: 'm'),
+                              onChanged: (_) => _recalc(),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: TextField(
+                              controller: _widCtrl,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              decoration: const InputDecoration(labelText: 'Width', suffixText: 'm'),
+                              onChanged: (_) => _recalc(),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: _thickCtrl,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration: const InputDecoration(labelText: 'Thickness', suffixText: 'mm'),
+                        onChanged: (_) => _recalc(),
+                      ),
+                    ],
+                  );
+                }
+                return Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _lenCtrl,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration: const InputDecoration(labelText: 'Length', suffixText: 'm'),
+                        onChanged: (_) => _recalc(),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: _widCtrl,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration: const InputDecoration(labelText: 'Width', suffixText: 'm'),
+                        onChanged: (_) => _recalc(),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: _thickCtrl,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration: const InputDecoration(labelText: 'Thickness', suffixText: 'mm'),
+                        onChanged: (_) => _recalc(),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 14),
-            const Text('Concrete Mix Ratio (Cement : Sand : Granite)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.textDark)),
+            Text('Concrete Mix Ratio (Cement : Sand : Granite)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: textPri)),
             const SizedBox(height: 6),
             Wrap(
               spacing: 8,
@@ -113,8 +158,9 @@ class _ConcreteCalcScreenState extends State<ConcreteCalcScreen> {
                 return ChoiceChip(
                   label: Text(ratio),
                   selected: sel,
+                  backgroundColor: isDark ? const Color(0xFF1B2433) : Colors.white,
                   selectedColor: AppTheme.headerBlue,
-                  labelStyle: TextStyle(color: sel ? Colors.white : AppTheme.textDark, fontWeight: FontWeight.bold),
+                  labelStyle: TextStyle(color: sel ? Colors.white : textPri, fontWeight: FontWeight.bold),
                   onSelected: (_) {
                     setState(() => _mixRatio = ratio);
                     _recalc();

@@ -51,8 +51,15 @@ class LaymanGlossaryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cardBg = AppTheme.cardBg(context);
+    final borderSubtle = AppTheme.borderSubtleColor(context);
+    final textPri = AppTheme.textPrimary(context);
+    final textSec = AppTheme.textSecondary(context);
+    final accent = AppTheme.accentBlue(context);
+    final iceBg = AppTheme.iceCardBg(context);
+
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBg,
+      backgroundColor: AppTheme.scaffoldColor(context),
       appBar: AppBar(title: const Text('Layman Construction Guide')),
       body: ListView.separated(
         padding: const EdgeInsets.all(12),
@@ -63,9 +70,9 @@ class LaymanGlossaryScreen extends StatelessWidget {
           return Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: cardBg,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppTheme.borderSubtle),
+              border: Border.all(color: borderSubtle),
               boxShadow: const [BoxShadow(color: Color(0x06000000), blurRadius: 4, offset: Offset(0, 2))],
             ),
             child: Row(
@@ -73,19 +80,19 @@ class LaymanGlossaryScreen extends StatelessWidget {
               children: [
                 Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: AppTheme.cardIceBlue, borderRadius: BorderRadius.circular(8)),
-                  child: Icon(icon, color: AppTheme.titleBlue, size: 22),
+                  decoration: BoxDecoration(color: iceBg, borderRadius: BorderRadius.circular(8)),
+                  child: Icon(icon, color: accent, size: 22),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.textDark)),
+                      Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: textPri)),
                       const SizedBox(height: 1),
-                      Text(subtitle, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: AppTheme.titleBlue)),
+                      Text(subtitle, style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: accent)),
                       const SizedBox(height: 4),
-                      Text(desc, style: const TextStyle(fontSize: 12, color: AppTheme.textMuted, height: 1.35)),
+                      Text(desc, style: TextStyle(fontSize: 12, color: textSec, height: 1.35)),
                     ],
                   ),
                 ),
