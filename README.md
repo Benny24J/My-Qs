@@ -54,7 +54,7 @@ A professional Flutter mobile application tailored for civil engineers, quantity
 
 ---
 
-## Tech Stack & Architecture
+## 🛠️ Tech Stack & Architecture
 
 - **Framework**: [Flutter](https://flutter.dev) (Dart 3.x)
 - **State Management & Persistence**: Native Flutter State + `shared_preferences`
@@ -102,7 +102,7 @@ A professional Flutter mobile application tailored for civil engineers, quantity
 
 ---
 
-##  Testing
+## 🧪 Testing
 
 The calculation engine is backed by thorough unit tests covering concrete batching, rebar formulas, tile pack rollups, and project aggregation:
 ```bash
@@ -111,6 +111,6 @@ flutter test test/calculator_engine_test.dart
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
